@@ -1,10 +1,10 @@
 (*
- * Author: Talia Ringer
+ * Author: Talia Ringer, refined by Gaëtan Gilbert 
  *
- * Real numbers are terrible in Coq, and I don't know why lra is so brittle,
- * so this can probably be improved a lot, but whatever.
+ * We should probably move to SSReflect for the rest of these theorems & proofs,
+ * and revisit this proof once we are on SSReflect
  *)
-Require Import Reals Lra.
+Require Import Reals Lra Lia.
 Infix "/" := Rdiv.
 Infix "+" := Rplus.
 Infix "*" := Rmult.
@@ -33,12 +33,6 @@ Ltac multiply_both_sides x H :=
   rewrite <- Rmult_assoc in H;
   try rewrite Rinv_r_simpl_m in H;
   auto.
-
-Ltac by_lra x y :=
-  replace x with y by lra.
-
-Ltac by_lra_in x y H :=
-  replace x with y in H by lra.
 
 Ltac by_ln_mult_in H :=
   rewrite ln_mult in H; try apply Nat.mul_pos_pos; auto with arith.
@@ -69,30 +63,15 @@ Proof.
   intros. unfold Rdiv in *.
   destruct H. destruct H4.
   pose proof (lt_ln_neq _ H). pose proof (lt_ln_neq _ H4). pose proof (lt_ln_neq _ H5).
-  assert (1 < x * y * z) by (repeat (apply Nat.lt_1_mul_pos; auto with arith)).
+  assert (1 < x * y * z) by lia.
   pose proof (lt_ln_neq _ H9).
   repeat by_ln_mult_in H3.
   repeat by_ln_mult_in H10.
   multiply_both_sides (ln x) H1.
   multiply_both_sides (ln y) H2.
   multiply_both_sides (ln x + ln y + ln z) H3.
-  rewrite H1 in H2. 
-  by_lra_in (ln x * 24) (8 * (ln x * 3)) H2.
-  by_lra_in (ln y * 40) (8 * (ln y * 5)) H2.
-  multiply_both_sides (Rinv 8) H2.
-  by_lra_in (((/ 8) * 8) * ((ln x) * 3)) (ln x * 3) H2.
-  by_lra_in (/ 8 * (8 * (ln y * 5))) (ln y * 5) H2.
-  multiply_both_sides (Rinv 3) H2.
-  by_lra_in (((/ 3) * (ln x)) * 3) (ln x) H2.
-  by_lra_in (/ 3 * (ln y * 5)) ((5 / 3) * (ln y)) H2.
-  rewrite H2 in H3. 
-  by_lra_in ((5 / 3 * ln y + ln y + ln z) * 12) (32 * ln y + 12 * ln z) H3.
-  rewrite H1. rewrite H2. rewrite H1 in H3. rewrite H2 in H3.
-  apply (f_equal (fun x => x - (32 * ln y))) in H3.
-  by_lra_in (32 * ln y + 12 * ln z - 32 * ln y) (12 * ln z) H3.
-  by_lra_in (5 / 3 * ln y * 24 - 32 * ln y) (8 * ln y) H3.
-  by_lra (5 / 3 * ln y * 24 * / ln z) (5 * (8 * ln y) / ln z).
-  rewrite H3. rewrite <- Rmult_assoc. by_lra 60%R (60 * 1). by_lra (5 * 12) (60%R).
-  unfold Rdiv. rewrite Rmult_assoc.
-  f_equal; try lra. rewrite Rinv_r_sym with (r := ln z); auto.
+  assert (ln w = ln z * 60%R) by lra.
+  multiply_both_sides (/ (ln z))%R H11.
+  rewrite Rinv_l in H11 by assumption.
+  lra.
 Qed.
