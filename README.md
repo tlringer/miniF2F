@@ -32,6 +32,7 @@ The benchmark is described in detail in the following [pre-print](https://arxiv.
 | Metamath  |  244 |  244  |
 | Hol Light |  165 |  165  |
 | Isabelle  |  60  |   35  |
+|   Coq     |  0   |    0  |
 
 ## Structure
 
@@ -97,6 +98,10 @@ whose name must match the file name, optionally with a proof for it as well as t
 imports.
 
 The `isabelle` folder is released under the Apache License.
+
+### Coq
+
+TODO.
 
 ## Code of Conduct and Contributions
 
